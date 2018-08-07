@@ -15,6 +15,9 @@ import java.awt.SystemColor;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.JScrollPane;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class SecretMessagesGUI extends JFrame
 {
@@ -22,6 +25,8 @@ public class SecretMessagesGUI extends JFrame
 	private JTextArea txtIn;
 	private JTextArea txtOut;
 	private JSlider slider;
+	private JScrollPane scrollPane;
+	private JScrollPane scrollPane_1;
 	
 	public String encode(String message, int keyVal)
 	{
@@ -73,26 +78,60 @@ public class SecretMessagesGUI extends JFrame
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(null);
 		
+		scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 11, 613, 172);
+		getContentPane().add(scrollPane);
+		
 		txtIn = new JTextArea();
+		scrollPane.setViewportView(txtIn);
 		txtIn.setWrapStyleWord(true);
 		txtIn.setLineWrap(true);
 		txtIn.setFont(new Font("Calibri", Font.ITALIC, 18));
-		txtIn.setBounds(10, 11, 613, 172);
-		getContentPane().add(txtIn);
 		
 		txtKey = new JTextField();
+		txtKey.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e)
+			{
+				try
+				{
+					int key = Integer.parseInt(txtKey.getText());
+
+					if (key >= slider.getMinimum() && key <= slider.getMaximum())
+						slider.setValue(key);
+					else
+					{
+						txtKey.setText("" + slider.getValue());
+						txtKey.requestFocus();
+						txtKey.selectAll();
+					}
+				}
+				catch (Exception ex)
+				{
+					JOptionPane.showMessageDialog(null,
+							"Please enter a whole number value for the encryption key.");
+					
+					txtKey.setText("" + slider.getValue());
+					txtKey.requestFocus();
+					txtKey.selectAll();
+				}
+			}
+		});
 		txtKey.setText("5");
 		txtKey.setHorizontalAlignment(SwingConstants.CENTER);
 		txtKey.setBounds(292, 217, 47, 20);
 		getContentPane().add(txtKey);
 		txtKey.setColumns(10);
 		
+		scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(10, 270, 613, 172);
+		getContentPane().add(scrollPane_1);
+		
 		txtOut = new JTextArea();
+		scrollPane_1.setViewportView(txtOut);
 		txtOut.setWrapStyleWord(true);
 		txtOut.setLineWrap(true);
 		txtOut.setFont(new Font("Calibri", Font.ITALIC, 18));
-		txtOut.setBounds(10, 270, 613, 172);
-		getContentPane().add(txtOut);
 		
 		JLabel lblKey = new JLabel("Key:");
 		lblKey.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -151,6 +190,25 @@ public class SecretMessagesGUI extends JFrame
 		slider.setBackground(new Color(176, 196, 222));
 		slider.setBounds(42, 205, 200, 44);
 		getContentPane().add(slider);
+		
+		JButton btnMoveUp = new JButton("Move Up ^");
+		btnMoveUp.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				String out = txtOut.getText();
+				
+				if (out.length() > 0)
+				{
+					txtIn.setText(out);
+					
+					int key = slider.getValue();
+					slider.setValue(-key);
+				}
+			}
+		});
+		btnMoveUp.setBounds(505, 216, 117, 23);
+		getContentPane().add(btnMoveUp);
 	}
 	
 	public static void main(String[] args)
